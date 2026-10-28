@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const tempMovieData = [
   {
@@ -50,9 +50,29 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
+const KEY = "bcd7bb1b";
+
 export default function Appv1() {
-  const [movies, setMovies] = useState(tempMovieData);
+  const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState(tempWatchedData);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function FetchingData() {
+      setLoading(true);
+      const response = await fetch(
+        `http://www.omdbapi.com/?apikey=${KEY}&s=avengers`,
+      );
+
+      const data = await response.json();
+
+      setMovies(data.Search);
+      setLoading(false);
+      console.log(movies);
+    }
+
+    FetchingData();
+  }, []);
 
   return (
     <>
@@ -65,9 +85,7 @@ export default function Appv1() {
       <Main movies={movies}>
         {/* ============ */}
 
-        <Box>
-          <MovieList movies={movies} />
-        </Box>
+        <Box>{loading ? <Loadings /> : <MovieList movies={movies} />}</Box>
 
         <Box>
           <WatchedSummary watched={watched} />
@@ -75,6 +93,14 @@ export default function Appv1() {
         </Box>
       </Main>
     </>
+  );
+}
+
+function Loadings() {
+  return (
+    <div className="loading">
+      <p>Loading...</p>
+    </div>
   );
 }
 
