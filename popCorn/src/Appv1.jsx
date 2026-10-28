@@ -54,11 +54,10 @@ const KEY = "bcd7bb1b";
 
 export default function Appv1() {
   const [movies, setMovies] = useState([]);
+  const [query, setQuery] = useState("");
   const [watched, setWatched] = useState(tempWatchedData);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState("");
-
-  const query = "avengers";
 
   useEffect(() => {
     async function FetchingData() {
@@ -79,20 +78,25 @@ export default function Appv1() {
         setMovies(data.Search);
       } catch (err) {
         setErrors(err.message);
-        console.log(err.message);
       } finally {
         setLoading(false);
       }
     }
 
+    if (query.length < 3) {
+      setErrors("");
+      setMovies([]);
+      return;
+    }
+
     FetchingData();
-  }, []);
+  }, [query]);
 
   return (
     <>
       <NavBar movies={movies}>
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResult movies={movies} />
       </NavBar>
       {/* ---------------------- */}
@@ -143,8 +147,7 @@ function Logo() {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
+function Search({ query, setQuery }) {
   return (
     <input
       className="search"
